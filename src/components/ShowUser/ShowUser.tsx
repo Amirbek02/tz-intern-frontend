@@ -35,7 +35,7 @@ export const ShowUser: React.FC = () => {
             <b>Возраст: </b> {user.age}
           </p>
         </div>
-        <Link className="block mt-5" href={`/`}>
+        <Link className="block mt-5" href={`/admin`}>
           <button className="rounded-2xl py-1.5 px-3.5 bg-gray-900 text-white">Назад</button>
         </Link>
       </div>

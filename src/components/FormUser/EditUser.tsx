@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { InferType, object, string } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
 
 interface Props {
   onClose?: VoidFunction;
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export const EditUser: React.FC<Props> = ({ onClose }) => {
+  const [showPassword, setShowPassword] = React.useState(false);
   const { id } = useParams();
   const { editUser, user, getUserById } = userStore();
   const router = useRouter();
@@ -24,6 +26,10 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
   const userSchema = object({
     name: string().required('Поле обязательно для заполнения'),
     email: string().email('Введите корректный email').required('Поле обязательно для заполнения'),
+    password: string()
+      .min(8, 'Пароль должен содержать минимум 8 символов')
+      .max(20, 'Пароль должен содержать максимум 20 символов')
+      .required('Поле обязательно для заполнения'),
     age: string()
       .matches(/^[1-9][0-9]*$/, 'Введите корректный возраст')
       .required('Поле обязательно для заполнения'),
@@ -33,6 +39,7 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
     defaultValues: {
       name: '',
       email: '',
+      password: '',
       age: '',
     },
   });
@@ -44,6 +51,7 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
           form.reset({
             name: user.name,
             email: user.email,
+            password: '',
             age: user.age.toString(),
           });
         }
@@ -66,6 +74,7 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
       await editUser(Number(id), {
         name: data.name,
         email: data.email,
+        password: data.password,
         age: data.age,
       });
 
@@ -73,7 +82,7 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
         icon: '✅',
       });
 
-      router.push('/');
+      router.push('/admin');
 
       onClose?.();
     } catch {
@@ -96,8 +105,19 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
           className="flex justify-center items-center flex-col relative"
           onSubmit={form.handleSubmit(onSubmit)}>
           <FormInput className={` ${inputClass} `} name="name" placeholder="Аты" required />
-          <FormInput className={inputClass} placeholder="Email" name="email" required />
-
+          <FormInput className={inputClass} disabled placeholder="Email" name="email" required />
+          <FormInput
+            className={inputClass}
+            name="password"
+            placeholder="Пароль"
+            type={showPassword ? 'text' : 'password'}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-[198px] right-[25px] transform -translate-y-1/2 self-center text-[rgba(0,0,0,0.44)] w-[20px] h-[14px]">
+            {showPassword ? <FaRegEyeSlash size={20} /> : <FaRegEye size={20} />}
+          </button>
           <FormInput className={inputClass} name="age" placeholder="age" type="age" />
           {form.formState.errors.name && (
             <p className="text-red-500 mb-5">{form.formState.errors.name.message}</p>
@@ -114,7 +134,7 @@ export const EditUser: React.FC<Props> = ({ onClose }) => {
             Сохранить
           </Button>
         </form>
-        <Link href={`/`}>
+        <Link href={`/admin`}>
           <Button className="text-white mm:rounded-[5px] xl:rounded-[12px] h-[45px] mm:h-[56px] mm:w-[356px] xl:w-[500px] mb-[14px] xl:mb-[114px] bg-black xl:bg-black">
             Отмена
           </Button>
